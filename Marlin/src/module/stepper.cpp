@@ -2718,12 +2718,12 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 }
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
-  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, DELTA, IS_SCARA)
+  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, DELTA, IS_SCARA, IS_ROBOT_ARM_2L)
     SERIAL_ECHOPAIR(STR_COUNT_A, pos.x, " B:", pos.y);
   #else
     SERIAL_ECHOPAIR_P(PSTR(STR_COUNT_X), pos.x, SP_Y_LBL, pos.y);
   #endif
-  #if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
+  #if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA, IS_ROBOT_ARM_2L)
     SERIAL_ECHOLNPAIR(" C:", pos.z);
   #else
     SERIAL_ECHOLNPAIR_P(SP_Z_LBL, pos.z);

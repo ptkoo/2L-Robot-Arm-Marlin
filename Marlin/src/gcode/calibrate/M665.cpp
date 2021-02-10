@@ -57,7 +57,7 @@
     if (parser.seen('C')) delta_diagonal_rod_trim.c = parser.value_float();
     recalc_delta_settings();
   }
-
+//2L TODO
 #elif IS_SCARA
 
   #include "../../module/scara.h"

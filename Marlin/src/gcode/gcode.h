@@ -80,9 +80,9 @@
  *
  * M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
  * M1   -> M0
- * M3   - Turn ON Laser | Spindle (clockwise), set Power | Speed. (Requires SPINDLE_FEATURE or LASER_FEATURE)
+ * M3   - Turn ON Laser | Spindle (clockwise), set Power | Speed. (Requires SPINDLE_FEATURE or LASER_FEATURE) || Open Gripper (Requires BYJ_GRIPPER_FEATURE)
  * M4   - Turn ON Laser | Spindle (counter-clockwise), set Power | Speed. (Requires SPINDLE_FEATURE or LASER_FEATURE)
- * M5   - Turn OFF Laser | Spindle. (Requires SPINDLE_FEATURE or LASER_FEATURE)
+ * M5   - Turn OFF Laser | Spindle. (Requires SPINDLE_FEATURE or LASER_FEATURE) || Close Gripper (Requires BYJ_GRIPPER_FEATURE)
  * M7   - Turn mist coolant ON. (Requires COOLANT_CONTROL)
  * M8   - Turn flood coolant ON. (Requires COOLANT_CONTROL)
  * M9   - Turn coolant OFF. (Requires COOLANT_CONTROL)
@@ -502,7 +502,7 @@ private:
 
   TERN_(HAS_RESUME_CONTINUE, static void M0_M1());
 
-  #if HAS_CUTTER
+  #if ANY(HAS_CUTTER, BYJ_GRIPPER_FEATURE)
     static void M3_M4(const bool is_M4);
     static void M5();
   #endif

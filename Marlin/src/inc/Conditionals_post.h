@@ -183,6 +183,13 @@
   #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
 #endif
 
+#if IS_ROBOT_ARM_2L
+  //#undef Z_SAFE_HOMING
+  //#undef SLOWDOWN
+  #define ROBOT_ARM_2L_Z_MAX (ROBOT_ARM_2L_LINKAGE+50.0)
+  //#define ROBOT_ARM_2L_MIN_RADIUS (ROBOT_ARM_2L_LINKAGE * 0.85 + ROBOT_ARM_2L_EE_OFFSET) //INNER RADIUS IMUM. x0.85 APPROX OF LAW OF COSINES
+  #define ROBOT_ARM_2L_MAX_RADIUS (ROBOT_ARM_2L_LINKAGE * 1.85 + ROBOT_ARM_2L_EE_OFFSET) //OUTTER RADIUS MAXIMUM. x1.85 APPROX OF LAW OF COSINES
+#endif
 /**
  * Set the home position based on settings or manual overrides
  */
@@ -2539,6 +2546,8 @@
     #define HAS_M206_COMMAND 1      // M206 sets the home offset for Cartesian machines
   #elif IS_SCARA
     #define HAS_SCARA_OFFSET 1      // The SCARA home offset applies only on G28
+  #elif IS_ROBOT_ARM_2L
+    #define HAS_ROBOT_ARM_2L_OFFSET 1      // The ROBOT_ARM_2L home offset applies only on G28
   #endif
 #endif
 

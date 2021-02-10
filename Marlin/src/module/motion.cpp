@@ -164,11 +164,19 @@ xyz_pos_t cartes;
     abc_pos_t scara_home_offset;
   #endif
 
+  #if HAS_ROBOT_ARM_2L_OFFSET
+    abc_pos_t ROBOT_ARM_2L_home_offset;
+  #endif
+
   #if HAS_SOFTWARE_ENDSTOPS
     float delta_max_radius, delta_max_radius_2;
   #elif IS_SCARA
     constexpr float delta_max_radius = SCARA_PRINTABLE_RADIUS,
                     delta_max_radius_2 = sq(SCARA_PRINTABLE_RADIUS);
+  #elif IS_ROBOT_ARM_2L
+    constexpr float delta_max_radius = ROBOT_ARM_2L_MAX_RADIUS,
+                    delta_max_radius_2 = sq(ROBOT_ARM_2L_MAX_RADIUS);
+                    
   #else // DELTA
     constexpr float delta_max_radius = DELTA_PRINTABLE_RADIUS,
                     delta_max_radius_2 = sq(DELTA_PRINTABLE_RADIUS);
@@ -205,6 +213,7 @@ xyz_pos_t cartes;
 inline void report_more_positions() {
   stepper.report_positions();
   TERN_(IS_SCARA, scara_report_positions());
+  TERN_(IS_ROBOT_ARM_2L, ROBOT_ARM_2L_report_positions());
 }
 
 // Report the logical position for a given machine position
@@ -260,7 +269,7 @@ void sync_plan_position_e() { planner.set_e_position_mm(current_position.e); }
 
 /**
  * Get the stepper positions in the cartes[] array.
- * Forward kinematics are applied for DELTA and SCARA.
+ * Forward kinematics are applied for DELTA, SCARA AND ROBOT_ARM_2L.
  *
  * The result is in the current coordinate space with
  * leveling applied. The coordinates need to be run through
@@ -268,8 +277,17 @@ void sync_plan_position_e() { planner.set_e_position_mm(current_position.e); }
  * suitable for current_position, etc.
  */
 void get_cartesian_from_steppers() {
+  SERIAL_ECHOLN("get_cartesian_from_steppers");
   #if ENABLED(DELTA)
     forward_kinematics_DELTA(planner.get_axis_positions_mm());
+  #elif IS_ROBOT_ARM_2L
+    //forward_kinematics_ROBOT_ARM_2L(planner.get_axis_positions_mm());
+    forward_kinematics_ROBOT_ARM_2L(
+        planner.get_axis_position_degrees(A_AXIS),
+        planner.get_axis_position_degrees(B_AXIS),
+        planner.get_axis_position_degrees(C_AXIS)
+      );
+    //cartes.set(planner.get_axis_position_mm(X_AXIS), planner.get_axis_position_mm(Y_AXIS), planner.get_axis_position_mm(Z_AXIS));
   #else
     #if IS_SCARA
       forward_kinematics_SCARA(
@@ -452,9 +470,32 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
       destination.z = rz;
       prepare_internal_fast_move_to_destination(z_feedrate);
     }
+  
+  /*#elif IS_ROBOT_ARM_2L
 
+    if (!position_is_reachable(rx, ry, rz)) return;
+
+     destination = current_position;
+
+    // If Z needs to raise, do it before moving XY
+    if (destination.z < rz) {
+      destination.z = rz;
+      prepare_internal_fast_move_to_destination(z_feedrate);
+    }
+
+    destination.set(rx, ry);
+    prepare_internal_fast_move_to_destination(xy_feedrate);
+
+    // If Z needs to lower, do it after moving XY
+    if (destination.z > rz) {
+      destination.z = rz;
+      prepare_internal_fast_move_to_destination(z_feedrate);
+    }*/
+    
   #else
 
+    if (!position_is_reachable(rx, ry, rz)) return;
+    
     // If Z needs to raise, do it before moving XY
     if (current_position.z < rz) {
       current_position.z = rz;
@@ -641,19 +682,23 @@ void restore_feedrate_and_scaling() {
 
       if (TERN0(DELTA, !all_axes_homed())) return;
 
+      if (TERN0(IS_ROBOT_ARM_2L, !all_axes_homed())) return;
+
+
       #if BOTH(HAS_HOTEND_OFFSET, DELTA)
         // The effector center position will be the target minus the hotend offset.
         const xy_pos_t offs = hotend_offset[active_extruder];
-      #else
         // SCARA needs to consider the angle of the arm through the entire move, so for now use no tool offset.
         constexpr xy_pos_t offs{0};
       #endif
 
+      #if IS_SCARA
       if (TERN1(IS_SCARA, TEST(axis_homed, X_AXIS) && TEST(axis_homed, Y_AXIS))) {
         const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
         if (dist_2 > delta_max_radius_2)
           target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
       }
+      #endif
 
     #else
 
@@ -720,6 +765,10 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     #define SCARA_MIN_SEGMENT_LENGTH 0.5f
   #endif
 
+  #if IS_ROBOT_ARM_2L
+    #define ROBOT_ARM_2L_MIN_SEGMENT_LENGTH 0.5f
+  #endif
+
   /**
    * Prepare a linear move in a DELTA or SCARA setup.
    *
@@ -771,6 +820,9 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     #if IS_SCARA
       NOMORE(segments, cartesian_mm * RECIPROCAL(SCARA_MIN_SEGMENT_LENGTH));
     #endif
+    #if IS_ROBOT_ARM_2L
+      NOMORE(segments, cartesian_mm * RECIPROCAL(ROBOT_ARM_2L_MIN_SEGMENT_LENGTH));
+    #endif
 
     // At least one segment is required
     NOLESS(segments, 1U);
@@ -784,13 +836,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       const float inv_duration = scaled_fr_mm_s / cartesian_segment_mm;
     #endif
 
-    /*
+    
     SERIAL_ECHOPAIR("mm=", cartesian_mm);
     SERIAL_ECHOPAIR(" seconds=", seconds);
     SERIAL_ECHOPAIR(" segments=", segments);
     SERIAL_ECHOPAIR(" segment_mm=", cartesian_segment_mm);
     SERIAL_EOL();
-    //*/
+    //
 
     // Get the current position as starting point
     xyze_pos_t raw = current_position;
@@ -1392,6 +1444,8 @@ void set_axis_is_at_home(const AxisEnum axis) {
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS) ? delta_height - TERN0(HAS_BED_PROBE, probe.offset.z) : base_home_pos(axis);
+  #elif ENABLED(ROBOT_ARM_2L)
+    ROBOT_ARM_2L_set_axis_is_at_home(axis);
   #else
     current_position[axis] = base_home_pos(axis);
   #endif
@@ -1760,7 +1814,7 @@ void homeaxis(const AxisEnum axis) {
       }
     #endif
 
-    // Reset flags for X, Y, Z motor locking
+    // Reset flags for X, Y, Z motor lock160ing
     switch (axis) {
       default: break;
       TERN_(X_DUAL_ENDSTOPS, case X_AXIS:)
@@ -1775,8 +1829,7 @@ void homeaxis(const AxisEnum axis) {
     backout_to_tmc_homing_phase(axis);
   #endif
 
-  #if IS_SCARA
-
+ #if IS_SCARA
     set_axis_is_at_home(axis);
     sync_plan_position();
 

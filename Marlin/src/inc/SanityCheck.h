@@ -1199,7 +1199,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Junction deviation is incompatible with kinematic systems.
  */
 #if HAS_JUNCTION_DEVIATION && IS_KINEMATIC
-  #error "CLASSIC_JERK is required for DELTA and SCARA."
+  #error "CLASSIC_JERK is required for DELTA, SCARA AND ROBOT_ARM_2L."
 #endif
 
 /**
@@ -1332,7 +1332,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     static_assert(PROBING_MARGIN_RIGHT >= 0, "PROBING_MARGIN_RIGHT must be >= 0.");
   #endif
 
-  #define _MARGIN(A) TERN(IS_SCARA, SCARA_PRINTABLE_RADIUS, TERN(DELTA, DELTA_PRINTABLE_RADIUS, ((A##_BED_SIZE) / 2)))
+  #define _MARGIN(A) TERN(IS_ROBOT_ARM_2L, ROBOT_ARM_2L_MAX_RADIUS, TERN(IS_SCARA, SCARA_PRINTABLE_RADIUS, TERN(DELTA, DELTA_PRINTABLE_RADIUS, ((A##_BED_SIZE) / 2))))
   static_assert(PROBING_MARGIN < _MARGIN(X), "PROBING_MARGIN is too large.");
   static_assert(PROBING_MARGIN_BACK < _MARGIN(Y), "PROBING_MARGIN_BACK is too large.");
   static_assert(PROBING_MARGIN_FRONT < _MARGIN(Y), "PROBING_MARGIN_FRONT is too large.");
@@ -3064,6 +3064,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #define _PIN_CONFLICT(P) (PIN_EXISTS(P) && P##_PIN == SPINDLE_LASER_PWM_PIN)
   #if BOTH(SPINDLE_FEATURE, LASER_FEATURE)
     #error "Enable only one of SPINDLE_FEATURE or LASER_FEATURE."
+  #elif BOTH(SPINDLE_FEATURE, BYJ_GRIPPER_FEATURE)
+    #error "Enable only one of SPINDLE_FEATURE or BYJ_GRIPPER_FEATURE."
   #elif !PIN_EXISTS(SPINDLE_LASER_ENA)
     #error "(SPINDLE|LASER)_FEATURE requires SPINDLE_LASER_ENA_PIN."
   #elif ENABLED(SPINDLE_CHANGE_DIR) && !PIN_EXISTS(SPINDLE_DIR)
@@ -3128,6 +3130,16 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #endif
   #endif
   #undef _PIN_CONFLICT
+#endif
+
+#if ENABLED(BYJ_GRIPPER_FEATURE)
+  #if ANY(SPINDLE_FEATURE, LASER_FEATURE)
+    #error "Cannot enable BYJ_GRIPPER_FEATURE together with SPINDLE_FEATURE or LASER_FEATURE."
+  #endif
+  #if!ENABLED(GRIP_STEPS)
+    #define GRIP_STEPS 1200
+    #warning "GRIP_STEPS not defined, it should be defined when using BYJ_GRIPPER_FEATURE. Using default value 1200"
+  #endif
 #endif
 
 #if !HAS_MARLINUI_U8GLIB

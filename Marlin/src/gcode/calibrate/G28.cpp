@@ -295,8 +295,16 @@ void GcodeSuite::G28() {
     home_delta();
 
     TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
+  
+  #elif IS_ROBOT_ARM_2L
 
-  #else // NOT DELTA
+    constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
+
+    home_ROBOT_ARM_2L();
+
+    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
+  
+  #else // NOT DELTA AND NOT ROBOT_ARM_2L
 
     const bool homeZ = parser.seen('Z'),
                needX = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(X_AXIS))),
@@ -373,7 +381,6 @@ void GcodeSuite::G28() {
         TERN_(BLTOUCH, bltouch.init());
 
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
-
         probe.move_z_after_homing();
 
       } // doZ
@@ -383,6 +390,15 @@ void GcodeSuite::G28() {
     sync_plan_position();
 
   #endif // !DELTA (G28)
+
+  /*#if IS_ROBOT_ARM_2L
+    constexpr xyz_float_t endstop_backoff = {ROBOT_ARM_2L_X_AT_ENDSTOP, ROBOT_ARM_2L_Y_AT_ENDSTOP, ROBOT_ARM_2L_Z_AT_ENDSTOP};
+    current_position = endstop_backoff;
+
+    sync_plan_position();
+
+    move_after_homing_ROBOT_ARM_2L();
+  #endif*/
 
   /**
    * Preserve DXC mode across a G28 for IDEX printers in DXC_DUPLICATION_MODE.

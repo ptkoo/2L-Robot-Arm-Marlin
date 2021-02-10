@@ -314,6 +314,8 @@
 
   #if IS_SCARA
     #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
+  #elif IS_ROBOT_ARM_2L
+    #define DELTA_SEGMENT_MIN_LENGTH 0.25 // ROBOT_ARM_2L minimum segment size is 0.25mm
   #elif ENABLED(DELTA)
     #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
   #else // CARTESIAN

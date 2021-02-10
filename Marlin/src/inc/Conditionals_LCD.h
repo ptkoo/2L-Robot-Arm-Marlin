@@ -30,6 +30,9 @@
 #if ENABLED(MORGAN_SCARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
+#elif ENABLED(ROBOT_ARM_2L)
+  #define IS_ROBOT_ARM_2L 1
+  #define IS_KINEMATIC 1
 #elif ENABLED(DELTA)
   #define IS_KINEMATIC 1
 #else

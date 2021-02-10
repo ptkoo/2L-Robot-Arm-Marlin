@@ -137,6 +137,8 @@ public:
           DELTA_PRINTABLE_RADIUS
         #elif IS_SCARA
           SCARA_PRINTABLE_RADIUS
+        #elif IS_ROBOT_ARM_2L
+          ROBOT_ARM_2L_MAX_RADIUS
         #endif
       );
 

@@ -132,3 +132,15 @@ void GcodeSuite::M5() {
 }
 
 #endif // HAS_CUTTER
+
+#if ENABLED(BYJ_GRIPPER_FEATURE)
+  #include "../gcode.h"
+  #include "../../feature/byj_gripper.h"
+  void GcodeSuite::M3_M4(const bool is_M4) {
+   byj_gripper.cmdOn();
+  }
+
+  void GcodeSuite::M5() {
+    byj_gripper.cmdOff();
+  }
+#endif

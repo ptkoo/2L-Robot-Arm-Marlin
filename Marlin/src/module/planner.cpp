@@ -1874,6 +1874,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     block->steps.set(ABS(da + db), ABS(db), ABS(dc));
   #elif IS_SCARA
     block->steps.set(ABS(da), ABS(db), ABS(dc));
+  #elif IS_ROBOT_ARM_2L
+    block->steps.set(ABS(da), ABS(db), ABS(dc));
   #else
     // default non-h-bot planning
     block->steps.set(ABS(da), ABS(db), ABS(dc));
@@ -2797,6 +2799,12 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
       mm = (cart_dist_mm.x != 0.0 || cart_dist_mm.y != 0.0) ? cart_dist_mm.magnitude() : ABS(cart_dist_mm.z);
 
     // Cartesian XYZ to kinematic ABC, stored in global 'delta'
+    /*SERIAL_ECHOLNPAIR(
+      "buffer_line machine.rx=", machine.x,
+      " machine.ry=", machine.y,
+      " machine.rz=", machine.z,
+      " machinee=", machine.e
+    );*/
     inverse_kinematics(machine);
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
@@ -2917,6 +2925,12 @@ void Planner::set_position_mm(const float &rx, const float &ry, const float &rz,
   #endif
   #if IS_KINEMATIC
     position_cart.set(rx, ry, rz, e);
+    SERIAL_ECHOLNPAIR(
+      "set_position_mm rx=", rx,
+      " ry=", ry,
+      " rz=", rz,
+      " e=", e
+    );
     inverse_kinematics(machine);
     set_machine_position_mm(delta.a, delta.b, delta.c, machine.e);
   #else

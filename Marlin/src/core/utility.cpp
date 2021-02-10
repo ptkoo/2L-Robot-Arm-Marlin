@@ -57,11 +57,12 @@ void safe_delay(millis_t ms) {
 
   void log_machine_info() {
     SERIAL_ECHOLNPGM("Machine Type: "
-      TERN_(DELTA,         "Delta")
-      TERN_(IS_SCARA,      "SCARA")
-      TERN_(IS_CORE,       "Core")
-      TERN_(MARKFORGED_XY, "MarkForged")
-      TERN_(IS_CARTESIAN,  "Cartesian")
+      TERN_(DELTA,           "Delta")
+      TERN_(IS_SCARA,        "SCARA")
+      TERN_(IS_ROBOT_ARM_2L, "ROBOT_ARM_2L")
+      TERN_(IS_CORE,         "Core")
+      TERN_(MARKFORGED_XY,   "MarkForged")
+      TERN_(IS_CARTESIAN,    "Cartesian")
     );
 
     SERIAL_ECHOLNPGM("Probe: "
@@ -90,7 +91,7 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM(" (Middle");
         else
           SERIAL_ECHOPGM(" (Aligned With");
-
+//2L TODO
         if (probe.offset_xy.y > 0)
           serialprintPGM(ENABLED(IS_SCARA) ? PSTR("-Distal") : PSTR("-Back"));
         else if (probe.offset_xy.y < 0)

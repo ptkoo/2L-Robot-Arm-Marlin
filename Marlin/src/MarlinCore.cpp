@@ -159,6 +159,8 @@
   #include "module/delta.h"
 #elif IS_SCARA
   #include "module/scara.h"
+#elif IS_ROBOT_ARM_2L
+  #include "module/robotarm2l.h"
 #endif
 
 #if HAS_LEVELING

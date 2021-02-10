@@ -32,6 +32,8 @@
 
 #if IS_SCARA
   #include "scara.h"
+#elif IS_ROBOT_ARM_2L
+  #include "robotarm2l.h"
 #endif
 
 // Axis homed and known-position states
@@ -337,30 +339,49 @@ bool homing_needed_error(uint8_t axis_bits=0x07);
  * position_is_reachable family of functions
  */
 
-#if IS_KINEMATIC // (DELTA or SCARA)
+#if IS_KINEMATIC // (DELTA or SCARA of  ROBOT_ARM_2L)
 
   #if HAS_SCARA_OFFSET
     extern abc_pos_t scara_home_offset; // A and B angular offsets, Z mm offset
   #endif
 
-  // Return true if the given point is within the printable area
-  inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
-    #if ENABLED(DELTA)
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
-    #elif IS_SCARA
-      const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
-      return (
-        R2 <= sq(L1 + L2) - inset
-        #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
-        #endif
-      );
-    #endif
-  }
+  #if HAS_ROBOT_ARM_2L_OFFSET
+    extern abc_pos_t ROBOT_ARM_2L_home_offset; // A, B and C angular offsets
+  #endif
 
-  inline bool position_is_reachable(const xy_pos_t &pos, const float inset=0) {
-    return position_is_reachable(pos.x, pos.y, inset);
-  }
+  #if IS_ROBOT_ARM_2L
+    inline bool position_is_reachable(const float &rx, const float &ry, const float &rz = current_position.z, const float inset = 0) {
+      return position_is_reachable_ROBOT_ARM_2L(rx, ry, rz, inset);
+    }
+
+    inline bool position_is_reachable(const xyz_pos_t &pos) {
+      return position_is_reachable(pos.x, pos.y, pos.z, 0);
+    }
+
+  #else
+    // Return true if the given point is within the printable area
+    inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
+      #if ENABLED(DELTA)
+        return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
+      #elif IS_SCARA
+        const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
+        return (
+          R2 <= sq(L1 + L2) - inset
+          #if MIDDLE_DEAD_ZONE_R > 0
+            && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+          #endif
+        );
+      #endif 
+    }
+
+    inline bool position_is_reachable(const xy_pos_t &pos, const float inset=0) {
+      #if IS_ROBOT_ARM_2L
+        return position_is_reachable(pos.x, pos.y, current_position.z, inset);
+      #else
+        return position_is_reachable(pos.x, pos.y, inset);
+      #endif
+    }
+  #endif  
 
 #else // CARTESIAN
 

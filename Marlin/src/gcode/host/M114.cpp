@@ -83,6 +83,8 @@
       // Kinematics applied to the leveled position
       #if IS_SCARA
         SERIAL_ECHOPGM("ScaraK: ");
+      #elif IS_ROBOT_ARM_2L
+        SERIAL_ECHOPGM("ROBOT_ARM_2LK: ");
       #else
         SERIAL_ECHOPGM("DeltaK: ");
       #endif
@@ -168,6 +170,16 @@
       const xy_float_t deg = {
         planner.get_axis_position_degrees(A_AXIS),
         planner.get_axis_position_degrees(B_AXIS)
+      };
+      SERIAL_ECHOPGM("Degrees:");
+      report_xyze(deg, 2);
+    #endif
+
+    #if IS_ROBOT_ARM_2L
+      const xy_float_t deg = {
+        planner.get_axis_position_degrees(A_AXIS),
+        planner.get_axis_position_degrees(B_AXIS),
+        planner.get_axis_position_degrees(C_AXIS)
       };
       SERIAL_ECHOPGM("Degrees:");
       report_xyze(deg, 2);

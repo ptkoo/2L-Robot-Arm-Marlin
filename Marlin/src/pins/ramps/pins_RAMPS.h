@@ -87,10 +87,10 @@
 //
 #ifndef X_STOP_PIN
   #ifndef X_MIN_PIN
-    #define X_MIN_PIN                          3
+    #define X_MIN_PIN                          18//3
   #endif
   #ifndef X_MAX_PIN
-    #define X_MAX_PIN                          2
+    #define X_MAX_PIN                          19//2
   #endif
 #endif
 #ifndef Y_STOP_PIN
@@ -103,10 +103,10 @@
 #endif
 #ifndef Z_STOP_PIN
   #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                         18
+    #define Z_MIN_PIN                         3//18
   #endif
   #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                         19
+    #define Z_MAX_PIN                         2//19
   #endif
 #endif
 
@@ -120,11 +120,11 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                            54
-#define X_DIR_PIN                             55
-#define X_ENABLE_PIN                          38
+#define X_STEP_PIN                            46//54
+#define X_DIR_PIN                             48//55
+#define X_ENABLE_PIN                          62//38
 #ifndef X_CS_PIN
-  #define X_CS_PIN                            53
+  #define X_CS_PIN                            40//53
 #endif
 
 #define Y_STEP_PIN                            60
@@ -135,12 +135,12 @@
 #endif
 
 #ifndef Z_STEP_PIN
-  #define Z_STEP_PIN                          46
+  #define Z_STEP_PIN                          54//46
 #endif
-#define Z_DIR_PIN                             48
-#define Z_ENABLE_PIN                          62
+#define Z_DIR_PIN                             55//48
+#define Z_ENABLE_PIN                          38//62
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN                            40
+  #define Z_CS_PIN                            53//40
 #endif
 
 #define E0_STEP_PIN                           26
@@ -773,3 +773,10 @@
   #define CLCD_MOD_RESET                      31
   #define CLCD_SPI_CS                         33
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
+
+#if ENABLED(BYJ_GRIPPER_FEATURE)
+  #define BYJ_PIN_0          40
+  #define BYJ_PIN_1          63
+  #define BYJ_PIN_2          59
+  #define BYJ_PIN_3          64
+#endif

@@ -67,10 +67,26 @@
 // config/examples/SCARA and customize for your machine.
 //
 
-// @section info
+//===========================================================================
+//============================= ROBOT_ARM_2L ================================
+//===========================================================================
+
+#define ROBOT_ARM_2L
+#define ROBOT_ARM_2L_LINKAGE 120
+#define ROBOT_ARM_2L_OFFSET_X 0
+#define ROBOT_ARM_2L_OFFSET_Y 0
+#define ROBOT_ARM_2L_OFFSET_Z 0
+#define ROBOT_ARM_2L_EE_OFFSET 40
+#define ROBOT_ARM_2L_MIN_RADIUS 90
+
+#define ROBOT_ARM_2L_SEGMENTS_PER_SECOND 200
+#define ROBOT_ARM_2L_X_AT_ENDSTOP 55   
+#define ROBOT_ARM_2L_Y_AT_ENDSTOP 0
+#define ROBOT_ARM_2L_Z_AT_ENDSTOP 115
+#define BYJ_GRIPPER_FEATURE
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "Leandro Loiacono" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -120,7 +136,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 250000
+#define BAUDRATE 115200
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -564,7 +580,7 @@
  *
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
-#define PREVENT_COLD_EXTRUSION
+//#define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP 170
 
 /**
@@ -654,12 +670,12 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Y_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define X_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define Z_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
 
 /**
@@ -678,9 +694,9 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-//#define X_DRIVER_TYPE  A4988
-//#define Y_DRIVER_TYPE  A4988
-//#define Z_DRIVER_TYPE  A4988
+#define X_DRIVER_TYPE  A4988
+#define Y_DRIVER_TYPE  A4988
+#define Z_DRIVER_TYPE  A4988
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
@@ -741,7 +757,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 43, 43, 43, 500 } //{ 80, 80, 4000, 500 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -788,10 +804,10 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-//#define CLASSIC_JERK
+#define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 10.0
-  #define DEFAULT_YJERK 10.0
+  #define DEFAULT_XJERK  0.3
+  #define DEFAULT_YJERK  0.3
   #define DEFAULT_ZJERK  0.3
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
@@ -802,7 +818,7 @@
   #endif
 #endif
 
-#define DEFAULT_EJERK    5.0  // May be used by Linear Advance
+#define DEFAULT_EJERK    0.3  // May be used by Linear Advance
 
 /**
  * Junction Deviation Factor
@@ -1087,8 +1103,8 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
+#define INVERT_Y_DIR false
+#define INVERT_Z_DIR true
 
 // @section extruder
 
@@ -1128,7 +1144,7 @@
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
-#define Z_MIN_POS 0
+#define Z_MIN_POS -125
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 200
@@ -1372,9 +1388,9 @@
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
-//#define MANUAL_X_HOME_POS 0
-//#define MANUAL_Y_HOME_POS 0
-//#define MANUAL_Z_HOME_POS 0
+#define MANUAL_X_HOME_POS 0
+#define MANUAL_Y_HOME_POS 160
+#define MANUAL_Z_HOME_POS 120
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
@@ -1393,8 +1409,8 @@
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_XY (50*60)
-#define HOMING_FEEDRATE_Z  (4*60)
+#define HOMING_FEEDRATE_XY (10*60)
+#define HOMING_FEEDRATE_Z  (10*60)
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
