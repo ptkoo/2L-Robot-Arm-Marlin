@@ -76,13 +76,13 @@
 #define ROBOT_ARM_2L_OFFSET_X 0
 #define ROBOT_ARM_2L_OFFSET_Y 0
 #define ROBOT_ARM_2L_OFFSET_Z 0
-#define ROBOT_ARM_2L_EE_OFFSET 40
+#define ROBOT_ARM_2L_EE_OFFSET 80
 #define ROBOT_ARM_2L_MIN_RADIUS 90
 
 #define ROBOT_ARM_2L_SEGMENTS_PER_SECOND 200
-#define ROBOT_ARM_2L_X_AT_ENDSTOP 55   
+#define ROBOT_ARM_2L_X_AT_ENDSTOP 65   
 #define ROBOT_ARM_2L_Y_AT_ENDSTOP 0
-#define ROBOT_ARM_2L_Z_AT_ENDSTOP 115
+#define ROBOT_ARM_2L_Z_AT_ENDSTOP 110
 #define BYJ_GRIPPER_FEATURE
 
 // Author info of this build printed to the host during boot and M115

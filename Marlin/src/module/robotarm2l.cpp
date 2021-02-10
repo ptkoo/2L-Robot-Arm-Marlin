@@ -38,7 +38,7 @@ float rot, high, low;
 
 void ROBOT_ARM_2L_set_axis_is_at_home(const AxisEnum axis) {
     SERIAL_ECHOLNPAIR(
-      "ROBOT_ARM_2L ROBOT_ARM_2L_set_axis_is_at_home a=", 1
+      "ROBOT_ARM_2L ROBOT_ARM_2L_set_axis_is_at_home a=", axis
     );
     /**
      * ROBOT_ARM_2L homes XYZ at the same time
@@ -179,7 +179,11 @@ void home_ROBOT_ARM_2L() {
 
 void move_after_homing_ROBOT_ARM_2L() {
   constexpr xyz_float_t endstop_backoff = {MANUAL_X_HOME_POS, MANUAL_Y_HOME_POS, MANUAL_Z_HOME_POS};
-  do_blocking_move_to(endstop_backoff, HOMING_FEEDRATE_XY);
+  //do_blocking_move_to(endstop_backoff, HOMING_FEEDRATE_XY);
+  current_position.set(MANUAL_X_HOME_POS, MANUAL_Y_HOME_POS, MANUAL_Z_HOME_POS);
+  line_to_current_position(100);
+  sync_plan_position();
+
 }
 
 bool position_is_reachable_ROBOT_ARM_2L(const float &rx, const float &ry, const float &rz, const float inset) {
