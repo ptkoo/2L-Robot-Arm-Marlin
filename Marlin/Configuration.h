@@ -80,9 +80,9 @@
 #define ROBOT_ARM_2L_MIN_RADIUS 90
 
 #define ROBOT_ARM_2L_SEGMENTS_PER_SECOND 200
-#define ROBOT_ARM_2L_X_AT_ENDSTOP 65   
+#define ROBOT_ARM_2L_X_AT_ENDSTOP 105   
 #define ROBOT_ARM_2L_Y_AT_ENDSTOP 0
-#define ROBOT_ARM_2L_Z_AT_ENDSTOP 110
+#define ROBOT_ARM_2L_Z_AT_ENDSTOP 105
 #define BYJ_GRIPPER_FEATURE
 
 // Author info of this build printed to the host during boot and M115
@@ -1388,10 +1388,15 @@
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
-#define MANUAL_X_HOME_POS 0
-#define MANUAL_Y_HOME_POS 160
-#define MANUAL_Z_HOME_POS 120
-
+#if ENABLED(ROBOT_ARM_2L)
+  #define MANUAL_X_HOME_POS 0
+  #define MANUAL_Y_HOME_POS (ROBOT_ARM_2L_LINKAGE + ROBOT_ARM_2L_EE_OFFSET)
+  #define MANUAL_Z_HOME_POS ROBOT_ARM_2L_LINKAGE
+#else
+  #define MANUAL_X_HOME_POS 0
+  #define MANUAL_Y_HOME_POS 0
+  #define MANUAL_Z_HOME_POS 0
+#endif
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
 // With this feature enabled:
