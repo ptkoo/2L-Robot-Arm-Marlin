@@ -79,22 +79,22 @@ void forward_kinematics_ROBOT_ARM_2L(const float &a, const float &b, const float
               h_min_l_sin = sin(RADIANS(c-b)),
               h_min_l_cos = cos(RADIANS(c-b));
 
-  float rot_ee = ROBOT_ARM_2L_LINKAGE * (low_sin + h_min_l_sin) + ROBOT_ARM_2L_EE_OFFSET;
+  float rot_ee = ROBOT_ARM_2L_LINKAGE * (low_sin + low_cos) + ROBOT_ARM_2L_EE_OFFSET;
 
   float y = rot_ee * rot_sin;
 
   float x = rot_ee * rot_cos;
 
-  float z = ROBOT_ARM_2L_LINKAGE * (low_cos - h_min_l_cos);
+  float z = ROBOT_ARM_2L_LINKAGE * (low_cos - low_sin);
 
   cartes.set(x + ROBOT_ARM_2L_offset.x, y + ROBOT_ARM_2L_offset.y, z + ROBOT_ARM_2L_offset.z);
 
   
-   /* SERIAL_ECHOLNPAIR(
+    SERIAL_ECHOLNPAIR(
       "ROBOT_ARM_2L FK x=", x,
       " y=", y,
       " z=", z
-    );*/
+    );
    // SERIAL_ECHOLNPAIR(" cartes (X,Y) = "(cartes.x, ", ", cartes.y, ")"));
   
 }
@@ -120,9 +120,9 @@ void inverse_kinematics(const xyz_pos_t &raw) {
    
   //Angle of Lower Stepper Motor  (asin()=Angle To Gripper)
   if (raw.z > 0) {
-    low =      asin(rrot / rside) + ((PI - high) / 2.0) - (PI / 2.0);
+    low =      asin(rrot / rside) - high / 2.0;
   } else {
-    low = PI - asin(rrot / rside) + ((PI - high) / 2.0) - (PI / 2.0);
+    low = PI - asin(rrot / rside) - high / 2.0;
   }
   //correct higher Angle as it is mechanically bounded width lower Motor
   high = high + low;
