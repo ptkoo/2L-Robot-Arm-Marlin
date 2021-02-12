@@ -53,6 +53,11 @@ void ROBOT_ARM_2L_set_axis_is_at_home(const AxisEnum axis) {
       " homeposition.z=", homeposition.z
     );
       inverse_kinematics(homeposition);
+       SERIAL_ECHOLNPAIR(
+      "forward_kinematics_ROBOT_ARM_2L delta.a=", delta.a,
+      " delta.b=", delta.b,
+      " delta.c=", delta.c
+    );
       forward_kinematics_ROBOT_ARM_2L(delta.a, delta.b, delta.c);
       current_position[axis] = cartes[axis];
     
@@ -74,17 +79,21 @@ void forward_kinematics_ROBOT_ARM_2L(const float &a, const float &b, const float
               rot_cos = cos(RADIANS(a)),
               low_sin = sin(RADIANS(b)),
               low_cos = cos(RADIANS(b)),
-              high_sin = sin(RADIANS(c)),
-              high_cos = cos(RADIANS(c)),
-              h_min_2l_sin = sin(RADIANS(c-2*b));
+              PI_min_h_sin = sin(RADIANS(180 - c)),
+              PI_min_h_cos = cos(RADIANS(180 - c));
 
-  float rot_ee = ROBOT_ARM_2L_LINKAGE * low_sin + ROBOT_ARM_2L_LINKAGE * h_min_2l_sin + ROBOT_ARM_2L_EE_OFFSET;
+  float rot_ee = ROBOT_ARM_2L_LINKAGE * low_sin + ROBOT_ARM_2L_LINKAGE * PI_min_h_sin + ROBOT_ARM_2L_EE_OFFSET;
 
   float y = rot_ee * rot_sin;
 
   float x = rot_ee * rot_cos;
 
-  float z = ROBOT_ARM_2L_LINKAGE * low_cos - ROBOT_ARM_2L_LINKAGE * h_min_2l_sin;
+   SERIAL_ECHOLNPAIR(
+      "ROBOT_ARM_2L FK low_cos=", low_cos,
+      " PI_min_h_cos=", PI_min_h_cos
+    );
+
+  float z = ROBOT_ARM_2L_LINKAGE * low_cos - ROBOT_ARM_2L_LINKAGE * PI_min_h_cos;
 
   cartes.set(x + ROBOT_ARM_2L_offset.x, y + ROBOT_ARM_2L_offset.y, z + ROBOT_ARM_2L_offset.z);
 
@@ -105,20 +114,19 @@ void inverse_kinematics(const xyz_pos_t &raw) {
       " raw.z=", raw.z
     );*/
 
- 
-  float rrot =  hypot(raw.x, raw.y) - ROBOT_ARM_2L_EE_OFFSET;    //radius from Top View
-  float rrot_ee = rrot + ROBOT_ARM_2L_EE_OFFSET;
-  float rside = hypot(rrot, raw.z);  //radius from Side View.
+  float rrot_ee = hypot(raw.x, raw.y);
+  float rrot =  rrot_ee - ROBOT_ARM_2L_EE_OFFSET;
+  float rside = hypot(rrot, raw.z);
 
   rot = acos(raw.x/ rrot_ee);
   
-  high = asin((rside * 0.5) / ROBOT_ARM_2L_LINKAGE) * 2.0;
+  high = PI - asin((rside * 0.5) / ROBOT_ARM_2L_LINKAGE) * 2.0;
    
   //Angle of Lower Stepper Motor  (asin()=Angle To Gripper)
   if (raw.z > 0) {
-    low =  acos(raw.z / rside) - (PI - high) / 2.0;
+    low =  acos(raw.z / rside) - high / 2.0;
   } else {
-    low = asin(raw.z / rside) + high / 2.0;
+    low = PI - asin(rrot / rside) - high / 2.0;
   }
   //correct higher Angle as it is mechanically bounded width lower Motor
   high = high + low;
