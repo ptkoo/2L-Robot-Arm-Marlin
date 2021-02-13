@@ -80,9 +80,9 @@
 #define ROBOT_ARM_2L_MIN_RADIUS 90
 
 #define ROBOT_ARM_2L_SEGMENTS_PER_SECOND 200
-#define ROBOT_ARM_2L_X_AT_ENDSTOP 55   
+#define ROBOT_ARM_2L_X_AT_ENDSTOP 99.5   
 #define ROBOT_ARM_2L_Y_AT_ENDSTOP 0
-#define ROBOT_ARM_2L_Z_AT_ENDSTOP 125
+#define ROBOT_ARM_2L_Z_AT_ENDSTOP 134
 #define BYJ_GRIPPER_FEATURE
 
 // Author info of this build printed to the host during boot and M115
