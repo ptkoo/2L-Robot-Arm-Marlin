@@ -192,7 +192,7 @@ void move_after_homing_ROBOT_ARM_2L() {
 }
 
 bool position_is_reachable_ROBOT_ARM_2L(const float &rx, const float &ry, const float &rz, const float inset) {
-      SERIAL_ECHOPAIR("position_is_reachable? rx: ", rx, ", ry: ", ry, ", rz:", rz, "\n");
+      //SERIAL_ECHOPAIR("position_is_reachable? rx: ", rx, ", ry: ", ry, ", rz:", rz, "\n");
 
       //float rrot =  hypot(rx, ry) - ROBOT_ARM_2L_EE_OFFSET;    //radius from Top View
       //float rrot_ee = rrot + ROBOT_ARM_2L_EE_OFFSET;
@@ -207,10 +207,10 @@ bool position_is_reachable_ROBOT_ARM_2L(const float &rx, const float &ry, const 
           !(rx ==0 && ry==0)
         );
       //if(!retVal) {
-        SERIAL_ECHOPAIR("r2:  ", r2, ", RMAX:", ROBOT_ARM_2L_MAX_RADIUS, ", RMIN", ROBOT_ARM_2L_MIN_RADIUS, 
-                      ", ROBOT_ARM_2L_Z_MIN: ", Z_MIN_POS, ", ROBOT_ARM_2L_Z_MAX",Z_MAX_POS,"\n");
+        //SERIAL_ECHOPAIR("r2:  ", r2, ", RMAX:", ROBOT_ARM_2L_MAX_RADIUS, ", RMIN", ROBOT_ARM_2L_MIN_RADIUS, 
+         //             ", ROBOT_ARM_2L_Z_MIN: ", Z_MIN_POS, ", ROBOT_ARM_2L_Z_MAX",Z_MAX_POS,"\n");
       //}
-      SERIAL_ECHOPAIR("position_is_reachable: ", retVal, "\n");
+      //SERIAL_ECHOPAIR("position_is_reachable: ", retVal, "\n");
       return retVal;
 }
 
