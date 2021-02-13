@@ -355,7 +355,7 @@ bool homing_needed_error(uint8_t axis_bits=0x07);
     }
 
     inline bool position_is_reachable(const xyz_pos_t &pos) {
-      return position_is_reachable(pos.x, pos.y, pos.z, 0);
+      return position_is_reachable_ROBOT_ARM_2L(pos.x, pos.y, pos.z, 0);
     }
 
   #else

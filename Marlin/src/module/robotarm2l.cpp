@@ -37,9 +37,9 @@ float delta_segments_per_second = ROBOT_ARM_2L_SEGMENTS_PER_SECOND;
 float rot, high, low;
 
 void ROBOT_ARM_2L_set_axis_is_at_home(const AxisEnum axis) {
-    SERIAL_ECHOLNPAIR(
+    /*SERIAL_ECHOLNPAIR(
       "ROBOT_ARM_2L ROBOT_ARM_2L_set_axis_is_at_home a=", axis
-    );
+    );*/
     /**
      * ROBOT_ARM_2L homes XYZ at the same time
      */
@@ -47,19 +47,20 @@ void ROBOT_ARM_2L_set_axis_is_at_home(const AxisEnum axis) {
     LOOP_XYZ(i) homeposition[i] = base_home_pos((AxisEnum)i);
 
     
-      SERIAL_ECHOLNPAIR(
+     /* SERIAL_ECHOLNPAIR(
       "ROBOT_ARM_2L_set_axis_is_at_home homeposition.x=", homeposition.x,
       " homeposition.y=", homeposition.y,
       " homeposition.z=", homeposition.z
-    );
-      inverse_kinematics(homeposition);
-       SERIAL_ECHOLNPAIR(
+    );*/
+    inverse_kinematics(homeposition);
+    
+    /*SERIAL_ECHOLNPAIR(
       "forward_kinematics_ROBOT_ARM_2L delta.a=", delta.a,
       " delta.b=", delta.b,
       " delta.c=", delta.c
-    );
-      forward_kinematics_ROBOT_ARM_2L(delta.a, delta.b, delta.c);
-      current_position[axis] = cartes[axis];
+    );*/
+    forward_kinematics_ROBOT_ARM_2L(delta.a, delta.b, delta.c);
+    current_position[axis] = cartes[axis];
     
 
     // SERIAL_ECHOPGM("Cartesian");
@@ -88,21 +89,21 @@ void forward_kinematics_ROBOT_ARM_2L(const float &a, const float &b, const float
 
   float x = rot_ee * rot_cos;
 
-   SERIAL_ECHOLNPAIR(
+   /*SERIAL_ECHOLNPAIR(
       "ROBOT_ARM_2L FK low_cos=", low_cos,
       " PI_min_h_cos=", PI_min_h_cos
-    );
+    );*/
 
   float z = ROBOT_ARM_2L_LINKAGE * low_cos - ROBOT_ARM_2L_LINKAGE * PI_min_h_cos;
 
   cartes.set(x + ROBOT_ARM_2L_offset.x, y + ROBOT_ARM_2L_offset.y, z + ROBOT_ARM_2L_offset.z);
 
   
-    SERIAL_ECHOLNPAIR(
+    /*SERIAL_ECHOLNPAIR(
       "ROBOT_ARM_2L FK x=", x,
       " y=", y,
       " z=", z
-    );
+    );*/
    // SERIAL_ECHOLNPAIR(" cartes (X,Y) = "(cartes.x, ", ", cartes.y, ")"));
   
 }
@@ -191,24 +192,25 @@ void move_after_homing_ROBOT_ARM_2L() {
 }
 
 bool position_is_reachable_ROBOT_ARM_2L(const float &rx, const float &ry, const float &rz, const float inset) {
-      //SERIAL_ECHOPAIR("position_is_reachable? rx: ", rx, ", ry: ", ry, ", rz:", rz, "\n");
+      SERIAL_ECHOPAIR("position_is_reachable? rx: ", rx, ", ry: ", ry, ", rz:", rz, "\n");
 
-      float rrot =  hypot(rx, ry) - ROBOT_ARM_2L_EE_OFFSET;    //radius from Top View
-      float rrot_ee = rrot + ROBOT_ARM_2L_EE_OFFSET;
-      float rside = hypot(rrot, rz);  //radius from Side View. 
+      //float rrot =  hypot(rx, ry) - ROBOT_ARM_2L_EE_OFFSET;    //radius from Top View
+      //float rrot_ee = rrot + ROBOT_ARM_2L_EE_OFFSET;
+      float r2 = sq(rx) + sq(ry) + sq(rz);  
 
       //2L TODO check inset
       bool retVal = (
-          rside <= (ROBOT_ARM_2L_MAX_RADIUS - inset) &&
-          rside >= ROBOT_ARM_2L_MIN_RADIUS && 
+          r2 <= sq(ROBOT_ARM_2L_MAX_RADIUS - inset) &&
+          r2 >= sq(ROBOT_ARM_2L_MIN_RADIUS) && 
           rz >= Z_MIN_POS && 
-          rz <= Z_MAX_POS
+          rz <= Z_MAX_POS &&
+          !(rx ==0 && ry==0)
         );
       //if(!retVal) {
-        //SERIAL_ECHOPAIR("rside:  ", rside, ", RMAX:", ROBOT_ARM_2L_MAX_RADIUS, ", RMIN", ROBOT_ARM_2L_MIN_RADIUS, 
-        //              ", ROBOT_ARM_2L_Z_MIN: ", Z_MIN_POS, ", ROBOT_ARM_2L_Z_MAX",Z_MAX_POS,"\n");
+        SERIAL_ECHOPAIR("r2:  ", r2, ", RMAX:", ROBOT_ARM_2L_MAX_RADIUS, ", RMIN", ROBOT_ARM_2L_MIN_RADIUS, 
+                      ", ROBOT_ARM_2L_Z_MIN: ", Z_MIN_POS, ", ROBOT_ARM_2L_Z_MAX",Z_MAX_POS,"\n");
       //}
-      //SERIAL_ECHOPAIR("position_is_reachable: ", retVal, "\n");
+      SERIAL_ECHOPAIR("position_is_reachable: ", retVal, "\n");
       return retVal;
 }
 

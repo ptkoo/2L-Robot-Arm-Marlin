@@ -169,13 +169,15 @@ xyz_pos_t cartes;
   #endif
 
   #if HAS_SOFTWARE_ENDSTOPS
-    float delta_max_radius, delta_max_radius_2;
+    float delta_max_radius, delta_max_radius_2, delta_min_radius, delta_min_radius_2;
   #elif IS_SCARA
     constexpr float delta_max_radius = SCARA_PRINTABLE_RADIUS,
                     delta_max_radius_2 = sq(SCARA_PRINTABLE_RADIUS);
   #elif IS_ROBOT_ARM_2L
     constexpr float delta_max_radius = ROBOT_ARM_2L_MAX_RADIUS,
-                    delta_max_radius_2 = sq(ROBOT_ARM_2L_MAX_RADIUS);
+                    delta_max_radius_2 = sq(ROBOT_ARM_2L_MAX_RADIUS),
+                    delta_min_radius = ROBOT_ARM_2L_MIN_RADIUS,
+                    delta_min_radius_2 = sq(ROBOT_ARM_2L_MIN_RADIUS);
                     
   #else // DELTA
     constexpr float delta_max_radius = DELTA_PRINTABLE_RADIUS,
@@ -682,8 +684,6 @@ void restore_feedrate_and_scaling() {
 
       if (TERN0(DELTA, !all_axes_homed())) return;
 
-      if (TERN0(IS_ROBOT_ARM_2L, !all_axes_homed())) return;
-
 
       #if BOTH(HAS_HOTEND_OFFSET, DELTA)
         // The effector center position will be the target minus the hotend offset.
@@ -699,6 +699,27 @@ void restore_feedrate_and_scaling() {
           target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
       }
       #endif
+
+     /* #if IS_ROBOT_ARM_2L
+      SERIAL_ECHOPAIR("apply_motion_limits? rx: ", target.x, ", ry: ", target.y, ", rz:", target.z, "\n");
+        if (TERN1(IS_ROBOT_ARM_2L, all_axes_homed())) {
+          const float dist_2 = sq(target.x) + sq(target.y) + sq(target.z);
+          if (dist_2 > delta_max_radius_2) {
+            target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66  
+          };
+          if (dist_2 < delta_min_radius_2) {
+            target = target * (float(delta_min_radius / SQRT(dist_2)));   
+          }
+        };*/
+        /*if (TEST(axis_homed, Z_AXIS)) {
+          #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
+            NOLESS(target.z, soft_endstop.min.z);
+          #endif
+          #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
+            NOMORE(target.z, soft_endstop.max.z);
+          #endif
+        }*/
+      //#endif
 
     #else
 
