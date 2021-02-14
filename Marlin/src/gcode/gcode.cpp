@@ -57,6 +57,10 @@ GcodeSuite gcode;
   #include "../feature/spindle_laser.h"
 #endif
 
+#if ENABLED(BYJ_GRIPPER_FEATURE)
+  #include "../feature/byj_gripper.h"
+#endif
+
 #if ENABLED(PASSWORD_FEATURE)
   #include "../feature/password/password.h"
 #endif
@@ -396,7 +400,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ANY(HAS_CUTTER, BYJ_GRIPPER_FEATURE)
         case 3: M3_M4(false); break;                              // M3: Turn ON Laser | Spindle (clockwise), set Power | Speed
-        case 4: M3_M4(true ); break;                              // M4: Turn ON Laser | Spindle (counter-clockwise), set Power | Speed
+        case 4: M3_M4(true); break;                               // M4: Turn ON Laser | Spindle (counter-clockwise), set Power | Speed
         case 5: M5(); break;                                      // M5: Turn OFF Laser | Spindle
       #endif
 

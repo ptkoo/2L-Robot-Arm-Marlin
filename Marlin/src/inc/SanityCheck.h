@@ -3138,7 +3138,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
   #if!ENABLED(GRIP_STEPS)
     #define GRIP_STEPS 1200
-    #warning "GRIP_STEPS not defined, it should be defined when using BYJ_GRIPPER_FEATURE. Using default value 1200"
+    //#warning "GRIP_STEPS not defined, it should be defined when using BYJ_GRIPPER_FEATURE. Using default value 1200"
   #endif
 #endif
 

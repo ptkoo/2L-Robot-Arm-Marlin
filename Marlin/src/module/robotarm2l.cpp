@@ -83,7 +83,7 @@ void forward_kinematics_ROBOT_ARM_2L(const float &a, const float &b, const float
               PI_min_h_sin = sin(RADIANS(180 - c)),
               PI_min_h_cos = cos(RADIANS(180 - c));
 
-  float rot_ee = ROBOT_ARM_2L_LINKAGE * low_sin + ROBOT_ARM_2L_LINKAGE * PI_min_h_sin + ROBOT_ARM_2L_EE_OFFSET;
+  float rot_ee = ROBOT_ARM_2L_LINKAGE_1 * low_sin + ROBOT_ARM_2L_LINKAGE_2 * PI_min_h_sin + ROBOT_ARM_2L_EE_OFFSET;
 
   float y = rot_ee * rot_sin;
 
@@ -94,7 +94,7 @@ void forward_kinematics_ROBOT_ARM_2L(const float &a, const float &b, const float
       " PI_min_h_cos=", PI_min_h_cos
     );*/
 
-  float z = ROBOT_ARM_2L_LINKAGE * low_cos - ROBOT_ARM_2L_LINKAGE * PI_min_h_cos;
+  float z = ROBOT_ARM_2L_LINKAGE_1 * low_cos - ROBOT_ARM_2L_LINKAGE_2 * PI_min_h_cos;
 
   cartes.set(x + ROBOT_ARM_2L_offset.x, y + ROBOT_ARM_2L_offset.y, z + ROBOT_ARM_2L_offset.z);
 
@@ -115,26 +115,49 @@ void inverse_kinematics(const xyz_pos_t &raw) {
       " raw.z=", raw.z
     );*/
 
+  const float L1sq = sq(ROBOT_ARM_2L_LINKAGE_1);
+  const float L2sq = sq(ROBOT_ARM_2L_LINKAGE_2);
   float rrot_ee = hypot(raw.x, raw.y);
   float rrot =  rrot_ee - ROBOT_ARM_2L_EE_OFFSET;
   float rside = hypot(rrot, raw.z);
+  float  RSsq = sq(rside);
 
   rot = acos(raw.x/ rrot_ee);
   
-  high = PI - asin((rside * 0.5) / ROBOT_ARM_2L_LINKAGE) * 2.0;
+  //old IK for shank1 = shank2
+  /*float low_eq = 0;
+  float high_eq = PI - asin((rside * 0.5) / ROBOT_ARM_2L_LINKAGE) * 2.0;
+  //SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: HIGH1: ", high_eq);
    
   //Angle of Lower Stepper Motor  (asin()=Angle To Gripper)
   if (raw.z > 0) {
-    low =  acos(raw.z / rside) - high / 2.0;
+    low_eq =  acos(raw.z / rside) - high_eq / 2.0;
   } else {
-    low = PI - asin(rrot / rside) - high / 2.0;
+    low_eq = PI - asin(rrot / rside) - high_eq / 2.0;
   }
   //correct higher Angle as it is mechanically bounded width lower Motor
-  high = high + low;
+  high_eq = high_eq + low_eq;*/
 
+  high = PI - acos((L1sq + L2sq - RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * ROBOT_ARM_2L_LINKAGE_2));
+  /*SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: HIGH1: ", high);
+  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: omega: ", acos(raw.z / rside));
+  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: rside: ", rside);
+  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: RSsq: ", RSsq);
+  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: cos_fi: ", (L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * rside));
+  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: fi: ", acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * rside)));*/
+  
+  if (raw.z > 0) {
+    low =  acos(raw.z / rside) - acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * rside));
+  } else {
+    low = PI - asin(rrot / rside) - acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * rside));
+  }
+
+  high = high + low;
   delta.set(DEGREES(rot), DEGREES(low), DEGREES(high));
 
-  
+  //if(low_eq != low || high_eq != high) {
+  //  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: ERRORE valori diversi - low_eq: ", low_eq, ", low: ", low, ", high_eq: ", high_eq, ", high: ", high);
+  //}
   //SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK:", raw);
   //SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK:", delta);
   //SERIAL_ECHOLNPAIR("ROBOT_ARM_2L (rot,lowhigh) ", rot, ",", low, ",", high);
@@ -165,6 +188,8 @@ void home_ROBOT_ARM_2L() {
       prepare_line_to_destination();
       planner.synchronize();
     }*/
+    move_before_homing_ROBOT_ARM_2L();
+
     disable_all_steppers();
 
     homeaxis(Y_AXIS);
@@ -183,12 +208,12 @@ void home_ROBOT_ARM_2L() {
 
 
 void move_after_homing_ROBOT_ARM_2L() {
-  constexpr xyz_float_t endstop_backoff = {MANUAL_X_HOME_POS, MANUAL_Y_HOME_POS, MANUAL_Z_HOME_POS};
-  //do_blocking_move_to(endstop_backoff, HOMING_FEEDRATE_XY);
   current_position.set(MANUAL_X_HOME_POS, MANUAL_Y_HOME_POS, MANUAL_Z_HOME_POS);
   line_to_current_position(100);
   sync_plan_position();
+}
 
+void move_before_homing_ROBOT_ARM_2L() {
 }
 
 bool position_is_reachable_ROBOT_ARM_2L(const float &rx, const float &ry, const float &rz, const float inset) {

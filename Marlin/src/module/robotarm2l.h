@@ -38,5 +38,6 @@ void forward_kinematics_ROBOT_ARM_2L(const float &a, const float &b, const float
 
 void ROBOT_ARM_2L_report_positions();
 
+void move_before_homing_ROBOT_ARM_2L();
 void move_after_homing_ROBOT_ARM_2L();
 void home_ROBOT_ARM_2L();
