@@ -83,7 +83,7 @@ void forward_kinematics_ROBOT_ARM_2L(const float &a, const float &b, const float
               PI_min_h_sin = sin(RADIANS(180 - c)),
               PI_min_h_cos = cos(RADIANS(180 - c));
 
-  float rot_ee = ROBOT_ARM_2L_LINKAGE_1 * low_sin + ROBOT_ARM_2L_LINKAGE_2 * PI_min_h_sin + ROBOT_ARM_2L_EE_OFFSET;
+  float rot_ee = ROBOT_ARM_2L_LOW_SHANK * low_sin + ROBOT_ARM_2L_HIGH_SHANK * PI_min_h_sin + ROBOT_ARM_2L_EE_OFFSET;
 
   float y = rot_ee * rot_sin;
 
@@ -94,7 +94,7 @@ void forward_kinematics_ROBOT_ARM_2L(const float &a, const float &b, const float
       " PI_min_h_cos=", PI_min_h_cos
     );*/
 
-  float z = ROBOT_ARM_2L_LINKAGE_1 * low_cos - ROBOT_ARM_2L_LINKAGE_2 * PI_min_h_cos;
+  float z = ROBOT_ARM_2L_LOW_SHANK * low_cos - ROBOT_ARM_2L_HIGH_SHANK * PI_min_h_cos;
 
   cartes.set(x + ROBOT_ARM_2L_offset.x, y + ROBOT_ARM_2L_offset.y, z + ROBOT_ARM_2L_offset.z);
 
@@ -115,8 +115,8 @@ void inverse_kinematics(const xyz_pos_t &raw) {
       " raw.z=", raw.z
     );*/
 
-  const float L1sq = sq(ROBOT_ARM_2L_LINKAGE_1);
-  const float L2sq = sq(ROBOT_ARM_2L_LINKAGE_2);
+  const float L1sq = sq(ROBOT_ARM_2L_LOW_SHANK);
+  const float L2sq = sq(ROBOT_ARM_2L_HIGH_SHANK);
   float rrot_ee = hypot(raw.x, raw.y);
   float rrot =  rrot_ee - ROBOT_ARM_2L_EE_OFFSET;
   float rside = hypot(rrot, raw.z);
@@ -138,7 +138,7 @@ void inverse_kinematics(const xyz_pos_t &raw) {
   //correct higher Angle as it is mechanically bounded width lower Motor
   high_eq = high_eq + low_eq;*/
 
-  high = PI - acos((L1sq + L2sq - RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * ROBOT_ARM_2L_LINKAGE_2));
+  high = PI - acos((L1sq + L2sq - RSsq) / (2 * ROBOT_ARM_2L_LOW_SHANK * ROBOT_ARM_2L_HIGH_SHANK));
   /*SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: HIGH1: ", high);
   SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: omega: ", acos(raw.z / rside));
   SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: rside: ", rside);
@@ -147,9 +147,9 @@ void inverse_kinematics(const xyz_pos_t &raw) {
   SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: fi: ", acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * rside)));*/
   
   if (raw.z > 0) {
-    low =  acos(raw.z / rside) - acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * rside));
+    low =  acos(raw.z / rside) - acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LOW_SHANK * rside));
   } else {
-    low = PI - asin(rrot / rside) - acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * rside));
+    low = PI - asin(rrot / rside) - acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LOW_SHANK * rside));
   }
 
   high = high + low;
@@ -228,9 +228,8 @@ bool position_is_reachable_ROBOT_ARM_2L(const float &rx, const float &ry, const 
           r2 <= sq(ROBOT_ARM_2L_MAX_RADIUS - inset) &&
           r2 >= sq(ROBOT_ARM_2L_MIN_RADIUS) && 
           rz >= Z_MIN_POS && 
-          rz <= Z_MAX_POS &&
-          !(rx ==0 && ry==0)
-        );
+          rz <= Z_MAX_POS &&  !(rx ==0 && ry==0)
+      );
       //if(!retVal) {
         //SERIAL_ECHOPAIR("r2:  ", r2, ", RMAX:", ROBOT_ARM_2L_MAX_RADIUS, ", RMIN", ROBOT_ARM_2L_MIN_RADIUS, 
          //             ", ROBOT_ARM_2L_Z_MIN: ", Z_MIN_POS, ", ROBOT_ARM_2L_Z_MAX",Z_MAX_POS,"\n");

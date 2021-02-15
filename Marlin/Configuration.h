@@ -72,9 +72,8 @@
 //===========================================================================
 
 #define ROBOT_ARM_2L
-#define ROBOT_ARM_2L_LINKAGE 120
-#define ROBOT_ARM_2L_LINKAGE_1 120
-#define ROBOT_ARM_2L_LINKAGE_2 120
+#define ROBOT_ARM_2L_LOW_SHANK 120
+#define ROBOT_ARM_2L_HIGH_SHANK 120
 #define ROBOT_ARM_2L_OFFSET_X 0
 #define ROBOT_ARM_2L_OFFSET_Y 0
 #define ROBOT_ARM_2L_OFFSET_Z 0
@@ -1392,8 +1391,8 @@
 // For DELTA this is the top-center of the Cartesian print volume.
 #if ENABLED(ROBOT_ARM_2L)
   #define MANUAL_X_HOME_POS 0
-  #define MANUAL_Y_HOME_POS (ROBOT_ARM_2L_LINKAGE + ROBOT_ARM_2L_EE_OFFSET)
-  #define MANUAL_Z_HOME_POS ROBOT_ARM_2L_LINKAGE
+  #define MANUAL_Y_HOME_POS (ROBOT_ARM_2L_HIGH_SHANK + ROBOT_ARM_2L_EE_OFFSET)
+  #define MANUAL_Z_HOME_POS ROBOT_ARM_2L_LOW_SHANK
 #else
   #define MANUAL_X_HOME_POS 0
   #define MANUAL_Y_HOME_POS 0
