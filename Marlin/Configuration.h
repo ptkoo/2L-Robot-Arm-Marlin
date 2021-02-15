@@ -74,16 +74,17 @@
 #define ROBOT_ARM_2L
 #define ROBOT_ARM_2L_LOW_SHANK 120
 #define ROBOT_ARM_2L_HIGH_SHANK 120
+#define ROBOT_ARM_2L_MIN_ANGLE_COS 0.791436948 //Cosine of min angle (37,68) available between shanks when the arm is fully folded. Used to calculate min radius allowed
+#define ROBOT_ARM_2L_MAX_ANGLE_COS -0.774944489 //Cosine of max angle (140,8) available between shanks when the arm is fully stretched. Used to calculate max radius allowed
 #define ROBOT_ARM_2L_OFFSET_X 0
 #define ROBOT_ARM_2L_OFFSET_Y 0
 #define ROBOT_ARM_2L_OFFSET_Z 0
 #define ROBOT_ARM_2L_EE_OFFSET 80
-#define ROBOT_ARM_2L_MIN_RADIUS 90
 
 #define ROBOT_ARM_2L_SEGMENTS_PER_SECOND 200
 #define ROBOT_ARM_2L_X_AT_ENDSTOP 99.5   
 #define ROBOT_ARM_2L_Y_AT_ENDSTOP 0
-#define ROBOT_ARM_2L_Z_AT_ENDSTOP 134
+#define ROBOT_ARM_2L_Z_AT_ENDSTOP 130
 #define BYJ_GRIPPER_FEATURE
 
 // Author info of this build printed to the host during boot and M115

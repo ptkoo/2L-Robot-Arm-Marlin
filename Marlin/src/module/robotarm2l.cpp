@@ -109,42 +109,17 @@ void forward_kinematics_ROBOT_ARM_2L(const float &a, const float &b, const float
 }
 
 void inverse_kinematics(const xyz_pos_t &raw) {
-  /*SERIAL_ECHOLNPAIR(
-      "ROBOT_ARM_2L IK raw.x=", raw.x,
-      " raw.y=", raw.y,
-      " raw.z=", raw.z
-    );*/
-
+  
   const float L1sq = sq(ROBOT_ARM_2L_LOW_SHANK);
   const float L2sq = sq(ROBOT_ARM_2L_HIGH_SHANK);
   float rrot_ee = hypot(raw.x, raw.y);
   float rrot =  rrot_ee - ROBOT_ARM_2L_EE_OFFSET;
   float rside = hypot(rrot, raw.z);
-  float  RSsq = sq(rside);
+  float RSsq = sq(rside);
 
   rot = acos(raw.x/ rrot_ee);
-  
-  //old IK for shank1 = shank2
-  /*float low_eq = 0;
-  float high_eq = PI - asin((rside * 0.5) / ROBOT_ARM_2L_LINKAGE) * 2.0;
-  //SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: HIGH1: ", high_eq);
-   
-  //Angle of Lower Stepper Motor  (asin()=Angle To Gripper)
-  if (raw.z > 0) {
-    low_eq =  acos(raw.z / rside) - high_eq / 2.0;
-  } else {
-    low_eq = PI - asin(rrot / rside) - high_eq / 2.0;
-  }
-  //correct higher Angle as it is mechanically bounded width lower Motor
-  high_eq = high_eq + low_eq;*/
 
   high = PI - acos((L1sq + L2sq - RSsq) / (2 * ROBOT_ARM_2L_LOW_SHANK * ROBOT_ARM_2L_HIGH_SHANK));
-  /*SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: HIGH1: ", high);
-  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: omega: ", acos(raw.z / rside));
-  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: rside: ", rside);
-  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: RSsq: ", RSsq);
-  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: cos_fi: ", (L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * rside));
-  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: fi: ", acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LINKAGE_1 * rside)));*/
   
   if (raw.z > 0) {
     low =  acos(raw.z / rside) - acos((L1sq - L2sq + RSsq) / (2 * ROBOT_ARM_2L_LOW_SHANK * rside));
@@ -154,24 +129,6 @@ void inverse_kinematics(const xyz_pos_t &raw) {
 
   high = high + low;
   delta.set(DEGREES(rot), DEGREES(low), DEGREES(high));
-
-  //if(low_eq != low || high_eq != high) {
-  //  SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK: ERRORE valori diversi - low_eq: ", low_eq, ", low: ", low, ", high_eq: ", high_eq, ", high: ", high);
-  //}
-  //SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK:", raw);
-  //SERIAL_ECHOLNPAIR("ROBOT_ARM_2L IK:", delta);
-  //SERIAL_ECHOLNPAIR("ROBOT_ARM_2L (rot,lowhigh) ", rot, ",", low, ",", high);
-  /*SERIAL_ECHOLNPAIR(
-      "ROBOT_ARM_2L IK Angle rot=", rot,
-      " low=", low,
-      " high=", high
-    );
-  SERIAL_ECHOLNPAIR(
-      "ROBOT_ARM_2L IK delta.x=", delta.x,
-      " delta.y=", delta.y,
-      " delta.z=", delta.z
-    );*/
-  
 
 }
 
@@ -219,9 +176,11 @@ void move_before_homing_ROBOT_ARM_2L() {
 bool position_is_reachable_ROBOT_ARM_2L(const float &rx, const float &ry, const float &rz, const float inset) {
       //SERIAL_ECHOPAIR("position_is_reachable? rx: ", rx, ", ry: ", ry, ", rz:", rz, "\n");
 
-      //float rrot =  hypot(rx, ry) - ROBOT_ARM_2L_EE_OFFSET;    //radius from Top View
-      //float rrot_ee = rrot + ROBOT_ARM_2L_EE_OFFSET;
-      float r2 = sq(rx) + sq(ry) + sq(rz);  
+      float rrot =  hypot(rx, ry) - ROBOT_ARM_2L_EE_OFFSET;    //radius from Top View
+      float rrot_ee = hypot(rx, ry);
+      float rrot_x = rrot * (rx / rrot_ee);
+      float rrot_y = rrot * (ry / rrot_ee);
+      float r2 = sq(rrot_x) + sq(rrot_y) + sq(rz);  
 
       //2L TODO check inset
       bool retVal = (
@@ -231,8 +190,8 @@ bool position_is_reachable_ROBOT_ARM_2L(const float &rx, const float &ry, const 
           rz <= Z_MAX_POS &&  !(rx ==0 && ry==0)
       );
       //if(!retVal) {
-        //SERIAL_ECHOPAIR("r2:  ", r2, ", RMAX:", ROBOT_ARM_2L_MAX_RADIUS, ", RMIN", ROBOT_ARM_2L_MIN_RADIUS, 
-         //             ", ROBOT_ARM_2L_Z_MIN: ", Z_MIN_POS, ", ROBOT_ARM_2L_Z_MAX",Z_MAX_POS,"\n");
+      //  SERIAL_ECHOPAIR("r2:  ", r2, ", RMAX: ", ROBOT_ARM_2L_MAX_RADIUS, ", RMIN: ", ROBOT_ARM_2L_MIN_RADIUS, 
+      //                ", ROBOT_ARM_2L_Z_MIN: ", Z_MIN_POS, ", ROBOT_ARM_2L_Z_MAX: ",Z_MAX_POS,"\n");
       //}
       //SERIAL_ECHOPAIR("position_is_reachable: ", retVal, "\n");
       return retVal;
